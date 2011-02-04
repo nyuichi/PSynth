@@ -1,2 +1,3 @@
 *.py[co]
 test/*.*
+.DS_Store
