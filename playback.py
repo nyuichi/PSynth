@@ -3,23 +3,29 @@ from __future__ import division
 from math import sin, floor, pi
 from struct import pack
 import pyaudio
+from constants import *
 
-def mixer(levels, seconds):
+singles = {}
+sampling = int(44100*sec)
+for i in range(41):
+    hz = 2*pi*440*(2**(i/12))/44100
+    raws = []
+    for x in range(sampling):
+        raws += [floor(32767/40*sin(hz*x))]
+    singles[i] = raws
 
-    sampling = int(44100*seconds)
 
-    rs = [2*pi*440*(2**(i/12))/44100 for i in levels]
-    ls = [2*pi*440*(2**((i+1)/12))/44100 for i in levels]
+def mixer(levels):
 
     raw = ''
 
     for x in xrange(sampling):
         r = l = 0
-        for step in rs:
-            r += floor(30000/12*sin(step*x))
-        for step in ls:
-            l += floor(30000/12*sin(step*x))
+        for level in levels:
+            r += singles[level][x]
+            l += singles[level*2][x]
         raw += pack('h', r) + pack('h', l)
+
     return raw
 
 def playback(receiver):
